@@ -16,6 +16,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 public class FlightPage extends javax.swing.JFrame {
 
     /**
@@ -27,43 +29,47 @@ public class FlightPage extends javax.swing.JFrame {
     String query = "SELECT * FROM flight WHERE Starting_Location = ? AND Destination = ?";
 
     public FlightPage() {
-        initComponents();
+           initComponents();
+        jTextField2.addActionListener(evt -> displayFlight());
         jTextField3.addActionListener(evt -> displayFlight());
         displayFlight();
+        
+        // Add ListSelectionListener to jTable1
+        jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                // If row is selected, enable the "Book" button; otherwise, disable it
+                jButton3.setEnabled(jTable1.getSelectedRow() != -1);
+            }
+        });
     }
     private void displayFlight() {
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        model.setRowCount(0); // Clear the table before populating it again
+       DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
 
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
 
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, jTextField2.getText()); // Starting location
-            statement.setString(2, jTextField3.getText()); // Destination
-
-            
-
-           
+            statement.setString(1, jTextField2.getText());
+            statement.setString(2, jTextField3.getText());
 
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 Object[] row = {
-                    resultSet.getInt("flight_id"),
-                    resultSet.getString("Airline"),
-                    resultSet.getString("Starting_Location"),
-                    resultSet.getString("Destination"),
-                    resultSet.getString("Cancellation_Policy"),
-                    resultSet.getString("Starting_Dt_time"),
-                    resultSet.getString("Ending_dt_time"),
-                    resultSet.getDouble("economy_price"),
-                    resultSet.getDouble("business_price"),
-                    resultSet.getDouble("first_class_price")
+                        resultSet.getInt("flight_id"),
+                        resultSet.getString("Airline"),
+                        resultSet.getString("Starting_Location"),
+                        resultSet.getString("Destination"),
+                        resultSet.getString("Cancellation_Policy"),
+                        resultSet.getString("Starting_Dt_time"),
+                        resultSet.getString("Ending_dt_time"),
+                        resultSet.getDouble("economy_price"),
+                        resultSet.getDouble("business_price"),
+                        resultSet.getDouble("first_class_price")
                 };
                 model.addRow(row);
             }
         } catch (SQLException e) {
-            // Display an error message dialog
             JOptionPane.showMessageDialog(this, "Error: Unable to fetch flights from the database. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -124,6 +130,11 @@ public class FlightPage extends javax.swing.JFrame {
 
         jButton2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton2.setText("SEARCH");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Book");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -214,18 +225,31 @@ public class FlightPage extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         // goes back to HomePage
-        HomePage tp = new HomePage();
-        tp.show(); // displays HomePage
-        dispose(); // closes FlightPage
+         HomePage tp = new HomePage();
+    tp.show(); // displays HomePage
+    dispose(); // closes FlightPage
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        int selectedRowIndex = jTable1.getSelectedRow();
+        if (selectedRowIndex != -1) {
+            // If a row is selected, proceed to the payment page
+            Payment tp = new Payment();
+            tp.show();
+            dispose();
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
         // TODO add your handling code here:
+        
     }//GEN-LAST:event_jTextField3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        displayFlight();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
