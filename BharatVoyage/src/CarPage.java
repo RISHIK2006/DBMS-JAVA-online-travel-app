@@ -183,70 +183,75 @@ public class CarPage extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         // TODO add your handling code here:
-         int selectedRow = jTable1.getSelectedRow();
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        if (selectedRow != -1 && selectedRow < model.getRowCount()) {
-            String carNo = model.getValueAt(selectedRow, 0).toString();
-            String seater = model.getValueAt(selectedRow, 1).toString();
-            String driverName = model.getValueAt(selectedRow, 2).toString();
-            String location = model.getValueAt(selectedRow, 3).toString();
-            String driverStatus = model.getValueAt(selectedRow, 4).toString();
-            String price = model.getValueAt(selectedRow, 5).toString();
+        int selectedRow = jTable1.getSelectedRow();
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    if (selectedRow != -1 && selectedRow < model.getRowCount()) {
+        String carNo = model.getValueAt(selectedRow, 0).toString();
+        String seater = model.getValueAt(selectedRow, 1).toString();
+        String driverName = model.getValueAt(selectedRow, 2).toString();
+        String location = model.getValueAt(selectedRow, 3).toString();
+        String driverStatus = model.getValueAt(selectedRow, 4).toString();
+        String price = model.getValueAt(selectedRow, 5).toString();
 
-            String url = "jdbc:mysql://localhost:3306/travel_agency";
-            String user = "root";
-            String password = "15475098";
+        String url = "jdbc:mysql://localhost:3306/travel_agency";
+        String user = "root";
+        String password = "15475098";
 
-            Connection con = null;
-            PreparedStatement pst = null;
+        Connection con = null;
+        PreparedStatement pst = null;
 
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            con.setAutoCommit(false);
+            
+            // Update the driver_status to 'unavailable' for the selected car driver
+            String updateQuery = "UPDATE car SET driver_status = 'unavailable' WHERE driver_name = ?";
+            pst = con.prepareStatement(updateQuery);
+            pst.setString(1, driverName);
+            pst.executeUpdate();
+
+            String insertQuery = "INSERT INTO CarBookings (car_no, seater, driver_name, starting_location, destination, driver_status, price) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            pst = con.prepareStatement(insertQuery);
+            pst.setString(1, carNo);
+            pst.setString(2, seater);
+            pst.setString(3, driverName);
+            pst.setString(4, starting_location); // corrected variable name
+            pst.setString(5, destination); // corrected variable name
+            pst.setString(6, driverStatus);
+            pst.setString(7, price);
+            pst.executeUpdate();
+
+            con.commit();
+            JOptionPane.showMessageDialog(this, "Booking successful!");
+            model.removeRow(selectedRow);
+
+        } catch (Exception e) {
             try {
-                con = DriverManager.getConnection(url, user, password);
-                con.setAutoCommit(false);
-                String deleteQuery = "DELETE FROM car WHERE car_no = ?";
-                pst = con.prepareStatement(deleteQuery);
-                pst.setString(1, carNo);
-                pst.executeUpdate();
-
-                String insertQuery = "INSERT INTO CarBookings (car_no, seater, driver_name, starting_location, destination, driver_status, price) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                pst = con.prepareStatement(insertQuery);
-                pst.setString(1, carNo);
-                pst.setString(2, seater);
-                pst.setString(3, driverName);
-                pst.setString(4, starting_location); // corrected variable name
-                pst.setString(5, destination); // corrected variable name
-                pst.setString(6, driverStatus);
-                pst.setString(7, price);
-                pst.executeUpdate();
-
-                con.commit();
-                JOptionPane.showMessageDialog(this, "Booking successful!");
-                model.removeRow(selectedRow);
-
-            } catch (Exception e) {
-                try {
-                    if (con != null) {
-                        con.rollback();
-                    }
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this, "Rollback failed: " + ex.getMessage());
+                if (con != null) {
+                    con.rollback();
                 }
-                JOptionPane.showMessageDialog(this, "Booking failed: " + e.getMessage());
-            } finally {
-                try {
-                    if (pst != null) {
-                        pst.close();
-                    }
-                    if (con != null) {
-                        con.close();
-                    }
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this, "Error closing resources: " + ex.getMessage());
-                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Rollback failed: " + ex.getMessage());
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "No car selected or invalid row index.");
+            JOptionPane.showMessageDialog(this, "Booking failed: " + e.getMessage());
+        } finally {
+            try {
+                if (pst != null) {
+                    pst.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error closing resources: " + ex.getMessage());
+            }
         }
+    } else {
+        JOptionPane.showMessageDialog(this, "No car selected or invalid row index.");
+    }
+    Payment paymentPage = new Payment();
+    paymentPage.setVisible(true);
+    dispose();
     }                                        
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
