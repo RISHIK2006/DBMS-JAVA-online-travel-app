@@ -282,6 +282,9 @@ public class Hotel extends javax.swing.JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error processing booking: " + e.getMessage());
         }
+        Payment paymentPage = new Payment();
+    paymentPage.setVisible(true);
+    dispose();
         
     }                                        
 
