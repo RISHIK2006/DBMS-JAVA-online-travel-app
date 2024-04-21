@@ -11,28 +11,46 @@ package pages;
  */
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.*;
+
 public class FlightPage extends javax.swing.JFrame {
 
     /**
      * Creates new form FlightPage
      */
-    String url = "jdbc:mysql://localhost:3306/travel_agency";
-    String username = "root";
-    String password = "15475098";
-    String query = "SELECT * FROM flight WHERE Starting_Location = ? AND Destination = ?";
-
+    private Connection connection;
+    private String startingLocation;
+    private String destination;
+    private String departureDate;
+    private String flightClass;
+    private int numberOfSeats;
     public FlightPage() {
-           initComponents();
-        jTextField2.addActionListener(evt -> displayFlight());
-        jTextField3.addActionListener(evt -> displayFlight());
-        displayFlight();
+        initComponents();
+        initializeDatabaseConnection();
+        ActionListener radioButtonListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                JRadioButton source = (JRadioButton) evt.getSource();
+                a.setText(source.getText()); // Set the text of jTextField1
+            }
+        };
+        
+        jRadioButton1.addActionListener(radioButtonListener);
+        jRadioButton2.addActionListener(radioButtonListener);
+        jRadioButton3.addActionListener(radioButtonListener);
+
         
         // Add ListSelectionListener to jTable1
         jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -42,36 +60,100 @@ public class FlightPage extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void initializeDatabaseConnection() {
+        String url = "jdbc:mysql://localhost:3306/travel_agency";
+        String username = "root";
+        String password = "WARmachineROXXX";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(url, username, password);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(FlightPage.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error: Unable to connect to the database. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    private void setFlightDetails() {
+        startingLocation = sl.getText();
+        destination = d.getText();
+        departureDate = departure.getText();
+        flightClass = a.getText();
+        numberOfSeats = Integer.parseInt(b.getText());
+    }
     private void displayFlight() {
-       DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
+        setFlightDetails();
+        
+        String query = "SELECT * FROM flight ";
+        try{
+            Statement statement = connection.createStatement();
+            
 
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
-
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, jTextField2.getText());
-            statement.setString(2, jTextField3.getText());
-
-            ResultSet resultSet = statement.executeQuery();
+            ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
-                Object[] row = {
-                        resultSet.getInt("flight_id"),
-                        resultSet.getString("Airline"),
-                        resultSet.getString("Starting_Location"),
-                        resultSet.getString("Destination"),
-                        resultSet.getString("Cancellation_Policy"),
-                        resultSet.getString("Starting_Dt_time"),
-                        resultSet.getString("Ending_dt_time"),
-                        resultSet.getDouble("economy_price"),
-                        resultSet.getDouble("business_price"),
-                        resultSet.getDouble("first_class_price")
-                };
-                model.addRow(row);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error: Unable to fetch flights from the database. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
+                int flight_id=resultSet.getInt("flight_id");
+                String airline=resultSet.getString("Airline");
+                String start=resultSet.getString("Starting_Location");
+                String dest=resultSet.getString("Destination");
+                String cp=resultSet.getString("Cancellation_Policy");
+                String start_date=resultSet.getString("Starting_Dt");
+                String start_time=resultSet.getString("Starting_time");
+                String end_date=resultSet.getString("ending_dt");
+                String end_time=resultSet.getString("Ending_time");
+                int e_price=resultSet.getInt("economy_price");
+                int b_price=resultSet.getInt("business_price");
+                int f_price=resultSet.getInt("first_class_price");
+                int avail_economy=resultSet.getInt("available_seats_economy");
+                int avail_business=resultSet.getInt("available_seats_business");
+                int avail_first_class=resultSet.getInt("available_seats_first_class");
+                String dt_time1=start_date+" "+start_time;
+                String dt_time2=end_date+" "+end_time;
+                String journey=start+"-"+dest;
+                Object[] row1={avail_economy,avail_business,avail_first_class};
+                Object[] row2 = {flight_id,airline,journey,cp,dt_time1,dt_time2,e_price};
+                Object[] row3 = {flight_id,airline,journey,cp,dt_time1,dt_time2,b_price};
+                Object[] row4= {flight_id,airline,journey,cp,dt_time1,dt_time2,f_price};
+                if(startingLocation.equals(start) && destination.equals(dest) && departureDate.equals(start_date)){
+                    if(flightClass.equals("economy")){
+                        if(numberOfSeats<=avail_economy){
+                            model.addRow(row2);
+                        }else{
+                            
+                        }
+                    }
+                    if(flightClass.equals("business")){
+                        if(numberOfSeats<=avail_business){
+                            model.addRow(row3);
+                        }
+                        else{
+                            
+                        }
+                    }
+                    if(flightClass.equals("first class")){
+                        if(numberOfSeats<=avail_first_class){
+                            model.addRow(row4);
+                        }
+                        else{
+                            
+                        }
+                    }
+                }
+            }    
+
         }
+        catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "Error: Unable to fetch flights from the database. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
+
+        }
+            
+            
+            
+            
     }
 
 
@@ -86,18 +168,25 @@ public class FlightPage extends javax.swing.JFrame {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        sl = new javax.swing.JTextField();
+        d = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jLabel5 = new javax.swing.JLabel();
+        departure = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        b = new javax.swing.JTextField();
+        jComboBox2 = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -122,9 +211,9 @@ public class FlightPage extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+        d.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
+                dActionPerformed(evt);
             }
         });
 
@@ -145,16 +234,32 @@ public class FlightPage extends javax.swing.JFrame {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "flight_id", "Airline", "Starting_Location", "Destination", "Cancellation_Policy", "Starting_Dt_time", "Ending_dt_time", "economy_price", "business_price", "first_class_price"
+                "Flight ID", "Airline", "Journey", "Cancellation Policy", "Boarding Time", "Alighting Time", "Price"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
+
+        jLabel5.setText("date");
+
+        jLabel7.setText("class");
+
+        jLabel8.setText("seats");
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "economy", "business", "first class", " " }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -162,22 +267,6 @@ public class FlightPage extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(jLabel2)
-                        .addGap(59, 59, 59)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(72, 72, 72)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jLabel1)
-                                .addComponent(jLabel6))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addGap(75, 75, 75)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -187,27 +276,87 @@ public class FlightPage extends javax.swing.JFrame {
                         .addGap(66, 66, 66)
                         .addComponent(jButton3)
                         .addGap(69, 69, 69)
-                        .addComponent(jButton1)))
-                .addContainerGap(25, Short.MAX_VALUE))
+                        .addComponent(jButton1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(68, 68, 68)
+                                .addComponent(jLabel2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(94, 94, 94)
+                                .addComponent(sl, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(72, 72, 72)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(d, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(97, 97, 97)
+                                .addComponent(departure, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel1)
+                                .addComponent(jLabel6))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(125, 125, 125)
+                                .addComponent(jLabel5)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(61, 61, 61)
+                                .addComponent(jLabel7))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(42, 42, 42)
+                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(6, 6, 6)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(70, 70, 70)
+                                .addComponent(b, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(93, 93, 93)
+                                .addComponent(jLabel8)))))
+                .addContainerGap(224, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addComponent(jLabel1)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel4)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(33, 33, 33)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel3)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(47, 47, 47)
+                                .addComponent(jLabel5))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(16, 16, 16)
+                                .addComponent(jLabel1)))
+                        .addGap(12, 12, 12)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(sl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel4)
+                                .addComponent(d, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(departure, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(17, 17, 17))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(33, 33, 33))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(b, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)))))
+                .addGap(21, 21, 21)
                 .addComponent(jLabel6)
                 .addGap(27, 27, 27)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -216,7 +365,7 @@ public class FlightPage extends javax.swing.JFrame {
                     .addComponent(jButton2)
                     .addComponent(jButton3)
                     .addComponent(jButton1))
-                .addContainerGap(34, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -225,9 +374,9 @@ public class FlightPage extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         // goes back to HomePage
-         HomePage tp = new HomePage();
-    tp.show(); // displays HomePage
-    dispose(); // closes FlightPage
+        HomePage tp = new HomePage();
+        tp.show(); // displays HomePage
+        dispose(); // closes FlightPage
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -235,16 +384,18 @@ public class FlightPage extends javax.swing.JFrame {
         int selectedRowIndex = jTable1.getSelectedRow();
         if (selectedRowIndex != -1) {
             // If a row is selected, proceed to the payment page
+            setFlightDetails();
+            
             Payment tp = new Payment();
             tp.show();
             dispose();
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+    private void dActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dActionPerformed
         // TODO add your handling code here:
         
-    }//GEN-LAST:event_jTextField3ActionPerformed
+    }//GEN-LAST:event_dActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
@@ -258,22 +409,33 @@ public class FlightPage extends javax.swing.JFrame {
         // Create and display the form
         java.awt.EventQueue.invokeLater(() -> {
             new FlightPage().setVisible(true);
+            
         });
     }
+    
 
+        // Add the listener to the radio buttons
+        
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField b;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.JTextField d;
+    private javax.swing.JTextField departure;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField sl;
     // End of variables declaration//GEN-END:variables
 }
