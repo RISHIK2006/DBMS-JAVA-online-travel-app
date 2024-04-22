@@ -36,27 +36,26 @@ public class FlightPage extends javax.swing.JFrame {
     private String departureDate;
     private String flightClass;
     private int numberOfSeats;
+    private String amount;
     public FlightPage() {
         initComponents();
-        initializeDatabaseConnection();
+        
         
         
         
 
         
         // Add ListSelectionListener to jTable1
-        jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                // If row is selected, enable the "Book" button; otherwise, disable it
-                jButton3.setEnabled(jTable1.getSelectedRow() != -1);
-            }
-        });
+        
     }
-    
+    private void openNextFrame(String textValue) {
+        Payment p = new Payment(textValue); // Pass text field value to constructor
+        p.setVisible(true);
+    }
     private void initializeDatabaseConnection() {
         String url = "jdbc:mysql://localhost:3306/travel_agency";
         String username = "root";
-        String password = "15475098";
+        String password = "WARmachineROXXX";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -80,7 +79,7 @@ public class FlightPage extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
         setFlightDetails();
-        
+        initializeDatabaseConnection();
         String query = "SELECT * FROM flight ";
         try{
             Statement statement = connection.createStatement();
@@ -255,6 +254,8 @@ public class FlightPage extends javax.swing.JFrame {
                     if (selectedRow != -1) {
                         // Make button visible when a row is selected
                         jButton3.setVisible(true);
+                        amount=jTable1.getValueAt(selectedRow, 5).toString();
+
                     } else {
                         // Hide button when no row is selected
                         jButton3.setVisible(false);
@@ -402,9 +403,15 @@ public class FlightPage extends javax.swing.JFrame {
             // If a row is selected, proceed to the payment page
             setFlightDetails();
             
-            Payment tp = new Payment();
-            tp.show();
+            String textValue = b.getText();
+            int x=Integer.parseInt(textValue);
+            int y=x*Integer.parseInt(amount);
+            String s=Integer.toString(y);
+            openNextFrame(s); // Pass the value to the next frame
             dispose();
+            
+            
+            
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -428,7 +435,8 @@ public class FlightPage extends javax.swing.JFrame {
     public static void main(String args[]) {
         // Create and display the form
         java.awt.EventQueue.invokeLater(() -> {
-            new FlightPage().setVisible(true);
+            FlightPage f=new FlightPage();
+            f.setVisible(true);
             
         });
     }

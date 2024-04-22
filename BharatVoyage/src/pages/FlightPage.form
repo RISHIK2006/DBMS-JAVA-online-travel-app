@@ -305,7 +305,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="ListSelectionModel selectionModel = jTable1.getSelectionModel();&#xa;selectionModel.addListSelectionListener(new ListSelectionListener() {&#xa;    @Override&#xa;    public void valueChanged(ListSelectionEvent evt) {&#xa;        if (!evt.getValueIsAdjusting()) {&#xa;            int selectedRow = jTable1.getSelectedRow();&#xa;            if (selectedRow != -1) {&#xa;                // Make button visible when a row is selected&#xa;                jButton3.setVisible(true);&#xa;            } else {&#xa;                // Hide button when no row is selected&#xa;                jButton3.setVisible(false);&#xa;            }&#xa;        }&#xa;    }&#xa;});"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="ListSelectionModel selectionModel = jTable1.getSelectionModel();&#xa;selectionModel.addListSelectionListener(new ListSelectionListener() {&#xa;    @Override&#xa;    public void valueChanged(ListSelectionEvent evt) {&#xa;        if (!evt.getValueIsAdjusting()) {&#xa;            int selectedRow = jTable1.getSelectedRow();&#xa;            if (selectedRow != -1) {&#xa;                // Make button visible when a row is selected&#xa;                jButton3.setVisible(true);&#xa;                amount=jTable1.getValueAt(selectedRow, 5).toString();&#xa;&#xa;            } else {&#xa;                // Hide button when no row is selected&#xa;                jButton3.setVisible(false);&#xa;            }&#xa;        }&#xa;    }&#xa;});"/>
           </AuxValues>
         </Component>
       </SubComponents>
