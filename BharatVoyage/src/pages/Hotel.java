@@ -29,7 +29,7 @@ public class Hotel extends javax.swing.JFrame {
             }
         });
     }
-
+    private String amount;
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -92,6 +92,23 @@ public class Hotel extends javax.swing.JFrame {
                 "Hotel_id", "Name", "Rating", "Amenities", "location", "price", "num_rooms_available", "type"
             }
         ));
+        ListSelectionModel selectionModel = jTable1.getSelectionModel();
+        selectionModel.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                if (!evt.getValueIsAdjusting()) {
+                    int selectedRow = jTable1.getSelectedRow();
+                    if (selectedRow != -1) {
+                        // Make button visible when a row is selected
+
+                        amount=jTable1.getValueAt(selectedRow, 5).toString();
+                    } else {
+                        // Hide button when no row is selected
+
+                    }
+                }
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         jLabel2.setText("number of rooms");
@@ -186,14 +203,14 @@ public class Hotel extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         
-     String location = jTextField3.getText();
+        String location = jTextField3.getText();
         String url = "jdbc:mysql://localhost:3306/travel_agency";
         String user = "root";
         String password = "15475098";
         String query = "SELECT * FROM Hotel WHERE location = ? AND num_rooms_available > 0 AND type = ?";
 
         try (Connection con = DriverManager.getConnection(url, user, password);
-             PreparedStatement pst = con.prepareStatement(query)) {
+            PreparedStatement pst = con.prepareStatement(query)) {
             pst.setString(1, location);
             pst.setString(2, jComboBox1.getSelectedItem().toString());
 
@@ -221,7 +238,7 @@ public class Hotel extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-          int selectedRow = jTable1.getSelectedRow();
+        int selectedRow = jTable1.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a hotel to book.");
             return;
@@ -282,9 +299,12 @@ public class Hotel extends javax.swing.JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error processing booking: " + e.getMessage());
         }
-        Payment paymentPage = new Payment();
-    paymentPage.setVisible(true);
-    dispose();
+        int x=Integer.parseInt(amount);
+        int z=x*numberOfRooms;
+        String s=Integer.toString(z);
+        Payment paymentPage = new Payment(s);
+        paymentPage.setVisible(true);
+        dispose();
         
     }//GEN-LAST:event_jButton2ActionPerformed
 

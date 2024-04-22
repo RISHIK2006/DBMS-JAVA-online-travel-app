@@ -25,7 +25,7 @@ public class CarPage extends javax.swing.JFrame {
    private String destination;
     private String driver_status;
     private String starting_location;
-
+    private String amount;
     public CarPage() {
         initComponents();
         jButton3.setEnabled(false);
@@ -101,6 +101,23 @@ public class CarPage extends javax.swing.JFrame {
                 "car number", "seater", "driver name", "startlocation", "end location", "driver status", "price"
             }
         ));
+        ListSelectionModel selectionModel = jTable1.getSelectionModel();
+        selectionModel.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                if (!evt.getValueIsAdjusting()) {
+                    int selectedRow = jTable1.getSelectedRow();
+                    if (selectedRow != -1) {
+                        // Make button visible when a row is selected
+
+                        amount=jTable1.getValueAt(selectedRow, 6).toString();
+                    } else {
+                        // Hide button when no row is selected
+
+                    }
+                }
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         jLabel4.setText("starting_location");
@@ -249,8 +266,12 @@ public class CarPage extends javax.swing.JFrame {
     } else {
         JOptionPane.showMessageDialog(this, "No car selected or invalid row index.");
     }
-    Payment paymentPage = new Payment();
-    paymentPage.setVisible(true);
+    
+        
+    
+    Payment p = new Payment(amount); // Pass data to the second page
+    p.setVisible(true);
+    
     dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
