@@ -39,17 +39,9 @@ public class FlightPage extends javax.swing.JFrame {
     public FlightPage() {
         initComponents();
         initializeDatabaseConnection();
-        ActionListener radioButtonListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                JRadioButton source = (JRadioButton) evt.getSource();
-                a.setText(source.getText()); // Set the text of jTextField1
-            }
-        };
         
-        jRadioButton1.addActionListener(radioButtonListener);
-        jRadioButton2.addActionListener(radioButtonListener);
-        jRadioButton3.addActionListener(radioButtonListener);
+        
+        
 
         
         // Add ListSelectionListener to jTable1
@@ -79,7 +71,8 @@ public class FlightPage extends javax.swing.JFrame {
         startingLocation = sl.getText();
         destination = d.getText();
         departureDate = departure.getText();
-        flightClass = a.getText();
+        flightClass =  a.getSelectedItem().toString();
+        
         numberOfSeats = Integer.parseInt(b.getText());
     }
     private void displayFlight() {
@@ -100,7 +93,7 @@ public class FlightPage extends javax.swing.JFrame {
                 String airline=resultSet.getString("Airline");
                 String start=resultSet.getString("Starting_Location");
                 String dest=resultSet.getString("Destination");
-                String cp=resultSet.getString("Cancellation_Policy");
+                
                 String start_date=resultSet.getString("Starting_Dt");
                 String start_time=resultSet.getString("Starting_time");
                 String end_date=resultSet.getString("ending_dt");
@@ -115,9 +108,10 @@ public class FlightPage extends javax.swing.JFrame {
                 String dt_time2=end_date+" "+end_time;
                 String journey=start+"-"+dest;
                 Object[] row1={avail_economy,avail_business,avail_first_class};
-                Object[] row2 = {flight_id,airline,journey,cp,dt_time1,dt_time2,e_price};
-                Object[] row3 = {flight_id,airline,journey,cp,dt_time1,dt_time2,b_price};
-                Object[] row4= {flight_id,airline,journey,cp,dt_time1,dt_time2,f_price};
+                Object[] row2 = {flight_id,airline,journey,dt_time1,dt_time2,e_price};
+                Object[] row3 = {flight_id,airline,journey,dt_time1,dt_time2,b_price};
+                Object[] row4= {flight_id,airline,journey,dt_time1,dt_time2,f_price};
+                
                 if(startingLocation.equals(start) && destination.equals(dest) && departureDate.equals(start_date)){
                     if(flightClass.equals("economy")){
                         if(numberOfSeats<=avail_economy){
@@ -186,7 +180,7 @@ public class FlightPage extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         b = new javax.swing.JTextField();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        a = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -225,6 +219,7 @@ public class FlightPage extends javax.swing.JFrame {
             }
         });
 
+        jButton3.setVisible(false);
         jButton3.setText("Book");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -234,21 +229,37 @@ public class FlightPage extends javax.swing.JFrame {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Flight ID", "Airline", "Journey", "Cancellation Policy", "Boarding Time", "Alighting Time", "Price"
+                "Flight ID", "Airline", "Journey", "Boarding Time", "Alighting Time", "Price"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+        });
+        ListSelectionModel selectionModel = jTable1.getSelectionModel();
+        selectionModel.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                if (!evt.getValueIsAdjusting()) {
+                    int selectedRow = jTable1.getSelectedRow();
+                    if (selectedRow != -1) {
+                        // Make button visible when a row is selected
+                        jButton3.setVisible(true);
+                    } else {
+                        // Hide button when no row is selected
+                        jButton3.setVisible(false);
+                    }
+                }
             }
         });
         jScrollPane1.setViewportView(jTable1);
@@ -259,7 +270,12 @@ public class FlightPage extends javax.swing.JFrame {
 
         jLabel8.setText("seats");
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "economy", "business", "first class", " " }));
+        a.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "economy", "business", "first class", " " }));
+        a.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -307,7 +323,7 @@ public class FlightPage extends javax.swing.JFrame {
                                 .addComponent(jLabel7))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(42, 42, 42)
-                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(a, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(6, 6, 6)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -321,8 +337,24 @@ public class FlightPage extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(a, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(33, 33, 33))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(b, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)))
+                        .addGap(21, 21, 21)
+                        .addComponent(jLabel6)
+                        .addGap(27, 27, 27))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(33, 33, 33)
@@ -342,23 +374,7 @@ public class FlightPage extends javax.swing.JFrame {
                                 .addComponent(jLabel4)
                                 .addComponent(d, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(departure, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(17, 17, 17))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(33, 33, 33))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(b, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)))))
-                .addGap(21, 21, 21)
-                .addComponent(jLabel6)
-                .addGap(27, 27, 27)
+                        .addGap(65, 65, 65)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -402,6 +418,10 @@ public class FlightPage extends javax.swing.JFrame {
         displayFlight();
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void aActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_aActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -417,6 +437,7 @@ public class FlightPage extends javax.swing.JFrame {
         // Add the listener to the radio buttons
         
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> a;
     private javax.swing.JTextField b;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -425,7 +446,6 @@ public class FlightPage extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
