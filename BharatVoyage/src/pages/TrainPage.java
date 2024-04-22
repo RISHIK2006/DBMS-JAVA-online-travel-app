@@ -31,6 +31,7 @@ public class TrainPage extends javax.swing.JFrame {
     /**
      * Creates new form TrainPage
      */
+    private String amount;
     public TrainPage() {
         initComponents();
     }
@@ -108,6 +109,7 @@ public class TrainPage extends javax.swing.JFrame {
                     if (selectedRow != -1) {
                         // Make button visible when a row is selected
                         jButton4.setVisible(true);
+                        amount=jTable1.getValueAt(selectedRow, 5).toString();
                     } else {
                         // Hide button when no row is selected
                         jButton4.setVisible(false);
@@ -243,7 +245,7 @@ public class TrainPage extends javax.swing.JFrame {
         int numberOfSeats = Integer.parseInt(b.getText());
         String url = "jdbc:mysql://localhost:3306/travel_agency";
         String username = "root";
-        String password = "15475098";
+        String password = "WARmachineROXXX";
         String query = "SELECT * FROM train ";
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -284,13 +286,14 @@ public class TrainPage extends javax.swing.JFrame {
                             
                         }
                     }
-                    if (flightClass.equals("ac first class")) {
-    if (numberOfSeats <= resultSet.getInt("available_seats_ac_first_class")) {
-        model.addRow(row4);
-    } else {
-        // Handle case when seats are not available
-    }
-}
+                    if(flightClass.equals("ac first class")){
+                        if(numberOfSeats<=resultSet.getInt("available_seats_ac_2_first_class")){
+                            model.addRow(row4);
+                        }
+                        else{
+                            
+                        }
+                    }
                 }
             }    
 
@@ -308,7 +311,16 @@ public class TrainPage extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        new Payment().setVisible(true);
+        
+            // Get the text from the text field and pass it to the second page
+        String text = b.getText();
+        int x=Integer.parseInt(text);
+        int y=Integer.parseInt(amount);
+        int z=x*y;
+        String s=Integer.toString(z);
+        Payment p = new Payment(s); // Pass data to the second page
+        p.setVisible(true);
+        
         dispose();// TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
 
