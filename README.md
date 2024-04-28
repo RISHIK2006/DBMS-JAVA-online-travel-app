@@ -1,4 +1,5 @@
 **# DBMS-JAVA-online-travel-app**
+
 About:
 The Onile Travel Booking project is a comprehensive platform offering seamless travel planning and booking services. Users can create accounts and manage their profiles. They can book train tickets, flights, and rental cars online. The system provides detailed information about train schedules, flight timings, and car availability, including fare enquiries. Secure payment processing ensures safe transactions. Additionally, users can browse and book accommodations from a variety of hotels listed, with details on amenities, prices, and availability. Overall, the project aims to provide a user-friendly and secure travel booking experience.
 
