@@ -195,26 +195,6 @@ VALUES
 (42068, 'Express Special', 'Jaipur', '2024-04-30', '20:00:00', 'Chandigarh', '2024-05-01', '06:00:00', 'Moderate', 500, 1000, 1500, 50, 25, 25),
 (78695, 'Superfast Express', 'Bhopal', '2024-05-01', '21:00:00', 'Lucknow', '2024-05-02', '09:00:00', 'Flexible', 480, 980, 1480, 58, 29, 14),
 (36987, 'Kavi Guru Express', 'Patna', '2024-05-02', '22:00:00', 'Jaipur', '2024-05-03', '10:00:00', 'Strict', 490, 990, 1490, 53, 28, 16);
-INSERT INTO HotelBookings (
-    Hotel_id, Name, Rating, Amenities, Location, Price, num_of_rooms_boked, type, Check_in, Check_out
-)
-VALUES 
-(101, 'Tranquil Haven Hotel', 4.2, 'WiFi, Breakfast', 'Pune', 500, 2, 'AC', '14:00:00', '12:00:00'),
-(505, 'Peaceful Valley Villa', 4.3, 'WiFi, Breakfast', 'Mumbai', 600, 1, 'AC', '15:00:00', '11:00:00'),
-(303, 'Blissful Retreat Inn', 4.8, 'Spa, Room Service', 'Hyderabad', 500, 3, 'AC', '13:00:00', '12:00:00'),
-(606, 'Tranquility Suites', 4.7, 'Gym, Pool', 'Chennai', 550, 1, 'Non-AC', '12:30:00', '11:00:00'),
-(1212, 'Blissful Bay Hotel', 4.2, 'Gym', 'Ahmedabad', 600, 4, 'Non-AC', '14:00:00', '10:00:00');
-INSERT INTO CarBookings (car_no)
-VALUES 
-('ABC123'), 
-('DEF456'), 
-('GHI789'), 
-('JKL012'), 
-('MNO345'), 
-('PQR678'), 
-('STU901'), 
-('VWX234'), 
-('YZA567'), 
-('BCD890');
+
 
 
