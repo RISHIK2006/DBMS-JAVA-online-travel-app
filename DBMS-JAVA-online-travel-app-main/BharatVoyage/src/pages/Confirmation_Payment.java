@@ -24,7 +24,107 @@ public class Confirmation_Payment extends javax.swing.JFrame {
      */
     public Confirmation_Payment() {
         initComponents();
+        String url = "jdbc:mysql://localhost:3306/travel_agency";
+        String username = "root";
+        String password = "WARmachineROXXX";
+        String query1 = "SELECT * FROM train ";
+        String query2="select * from flight";
         
+        int avail_seats;
+        try{
+            String JourneyClass=AppController.getInstance().getJourneyClass();
+            String seats=AppController.getInstance().getSeats();
+            String journeyID=AppController.getInstance().getJourneyID();
+            int NumberOfSeats=0;
+            
+            if(seats==null){
+                int a1=1;
+                
+            }else{
+                NumberOfSeats=Integer.parseInt(seats);
+            }
+            
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con= DriverManager.getConnection(url, username, password);
+            Statement statement = con.createStatement();
+            
+            ResultSet resultSet1 = statement.executeQuery(query1);
+            
+            while(resultSet1.next()){
+                String train_id=resultSet1.getString("train_id");
+                if(train_id.equals(journeyID)){
+                    if(JourneyClass.equals("sleeper")){
+               
+                        avail_seats=resultSet1.getInt("available_seats_sleeper");
+                        avail_seats=avail_seats-NumberOfSeats;
+                        String query3="update train set available_seats_sleeper=? where train_id=?";
+                        PreparedStatement ptst=con.prepareStatement(query3);
+                        ptst.setInt(1, avail_seats);
+                        ptst.setString(2, journeyID);
+                        
+                        ptst.executeUpdate(); 
+                        
+                        
+                    }
+                    else if(JourneyClass.equals("ac 2 tier")){
+                        avail_seats=resultSet1.getInt("available_seats_ac_2_tier");
+                        avail_seats=avail_seats-NumberOfSeats;
+                        String query3="update train set available_seats_ac_2_tier=? where train_id=?";
+                        PreparedStatement ptst=con.prepareStatement(query3);
+                        ptst.setInt(1, avail_seats);
+                        ptst.setString(2, journeyID);
+                        ptst.executeUpdate();
+                    }
+                    else if(JourneyClass.equals("ac first class")){
+                        avail_seats=resultSet1.getInt("available_seats_ac_first_class");
+                        avail_seats=avail_seats-NumberOfSeats;
+                        String query3="update train set available_seats_ac_first_class=? where train_id=?";
+                        PreparedStatement ptst=con.prepareStatement(query3);
+                        ptst.setInt(1, avail_seats);
+                        ptst.setString(2, journeyID);
+                        ptst.executeUpdate();
+                    }
+                }
+            }
+            ResultSet resultSet2 = statement.executeQuery(query2);
+            while(resultSet2.next()){
+                String flight_id=resultSet2.getString("flight_id");
+                if(flight_id.equals(journeyID)){
+                    if(JourneyClass.equals("economy")){
+                    
+                        avail_seats=resultSet2.getInt("available_seats_economy");
+                        avail_seats=avail_seats-NumberOfSeats;
+                        String query3="update flight set available_seats_economy=? where flight_id=?";
+                        PreparedStatement ptst=con.prepareStatement(query3);
+                        ptst.setInt(1, avail_seats);
+                        ptst.setString(2, journeyID);
+                        ptst.executeUpdate();
+                    }
+                    else if(JourneyClass.equals("business")){
+                        avail_seats=resultSet2.getInt("available_seats_business");
+                        avail_seats=avail_seats-NumberOfSeats;
+                        String query3="update flight set available_seats_business=? where flight_id=?";
+                        PreparedStatement ptst=con.prepareStatement(query3);
+                        ptst.setInt(1, avail_seats);
+                        ptst.setString(2, journeyID);
+                        ptst.executeUpdate();
+                    }
+                    else if(JourneyClass.equals("first class")){
+                        avail_seats=resultSet2.getInt("available_seats_first_class");
+                        avail_seats=avail_seats-NumberOfSeats;
+                        String query3="update flight set available_seats_first_class=? where flight_id=?";
+                        PreparedStatement ptst=con.prepareStatement(query3);
+                        ptst.setInt(1, avail_seats);
+                        ptst.setString(2, journeyID);
+                        ptst.executeUpdate();
+                    }
+                }
+            }
+        }catch(SQLException e){
+           JOptionPane.showMessageDialog(null, e.getMessage()); 
+        }catch(ClassNotFoundException ex){        
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
     }
 
     /**
@@ -138,102 +238,11 @@ public class Confirmation_Payment extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Confirmation_Payment().setVisible(true);
-                String url = "jdbc:mysql://localhost:3306/travel_agency";
-        String username = "root";
-        String password = "WARmachineROXXX";
-        String query1 = "SELECT * FROM train ";
-        String query2="select * from flight";
-        
-        int avail_seats;
-        try{
-            String JourneyClass=AppController.getInstance().getJourneyClass();
-            String seats=AppController.getInstance().getSeats();
-            String journeyID=AppController.getInstance().getJourneyID();
-            int NumberOfSeats=Integer.parseInt(seats);
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con= DriverManager.getConnection(url, username, password);
-            Statement statement = con.createStatement();
-            
-            ResultSet resultSet1 = statement.executeQuery(query1);
-            
-            while(resultSet1.next()){
-                String train_id=resultSet1.getString("train_id");
-                if(train_id.equals(journeyID)){
-                    if(JourneyClass.equals("sleeper")){
-               
-                        avail_seats=resultSet1.getInt("available_seats_sleeper");
-                        avail_seats=avail_seats-NumberOfSeats;
-                        String query3="update train set available_seats_sleeper=? where train_id=?";
-                        PreparedStatement ptst=con.prepareStatement(query3);
-                        ptst.setInt(1, avail_seats);
-                        ptst.setString(2, journeyID);
-                        
-                        ptst.executeUpdate(); 
-                        
-                        
-                    }
-                    else if(JourneyClass.equals("ac 2 tier")){
-                        avail_seats=resultSet1.getInt("available_seats_ac_2_tier");
-                        avail_seats=avail_seats-NumberOfSeats;
-                        String query3="update train set available_seats_ac_2_tier=? where train_id=?";
-                        PreparedStatement ptst=con.prepareStatement(query3);
-                        ptst.setInt(1, avail_seats);
-                        ptst.setString(2, journeyID);
-                        ptst.executeUpdate();
-                    }
-                    else if(JourneyClass.equals("ac first class")){
-                        avail_seats=resultSet1.getInt("available_seats_ac_first_class");
-                        avail_seats=avail_seats-NumberOfSeats;
-                        String query3="update train set available_seats_ac_first_class=? where train_id=?";
-                        PreparedStatement ptst=con.prepareStatement(query3);
-                        ptst.setInt(1, avail_seats);
-                        ptst.setString(2, journeyID);
-                        ptst.executeUpdate();
-                    }
-                }
-            }
-            ResultSet resultSet2 = statement.executeQuery(query2);
-            while(resultSet2.next()){
-                String flight_id=resultSet2.getString("flight_id");
-                if(flight_id.equals(journeyID)){
-                    if(JourneyClass.equals("economy")){
-                    
-                        avail_seats=resultSet2.getInt("available_seats_economy");
-                        avail_seats=avail_seats-NumberOfSeats;
-                        String query3="update flight set available_seats_economy=? where flight_id=?";
-                        PreparedStatement ptst=con.prepareStatement(query3);
-                        ptst.setInt(1, avail_seats);
-                        ptst.setString(2, journeyID);
-                        ptst.executeUpdate();
-                    }
-                    else if(JourneyClass.equals("business")){
-                        avail_seats=resultSet2.getInt("available_seats_business");
-                        avail_seats=avail_seats-NumberOfSeats;
-                        String query3="update flight set available_seats_business=? where flight_id=?";
-                        PreparedStatement ptst=con.prepareStatement(query3);
-                        ptst.setInt(1, avail_seats);
-                        ptst.setString(2, journeyID);
-                        ptst.executeUpdate();
-                    }
-                    else if(JourneyClass.equals("first class")){
-                        avail_seats=resultSet2.getInt("available_seats_first_class");
-                        avail_seats=avail_seats-NumberOfSeats;
-                        String query3="update flight set available_seats_first_class=? where flight_id=?";
-                        PreparedStatement ptst=con.prepareStatement(query3);
-                        ptst.setInt(1, avail_seats);
-                        ptst.setString(2, journeyID);
-                        ptst.executeUpdate();
-                    }
-                }
-            }
-        }catch(SQLException e){
-           JOptionPane.showMessageDialog(null, e.getMessage()); 
-        }catch(ClassNotFoundException ex){        
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-        }
+                
             }
         });
     }

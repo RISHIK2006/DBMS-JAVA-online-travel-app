@@ -25,7 +25,7 @@ import java.sql.SQLException;
 
 public class CarPage extends javax.swing.JFrame {
 
-   private String destination;
+    private String destination;
     private String driver_status;
     private String starting_location;
     private String amount;
@@ -229,9 +229,10 @@ public class CarPage extends javax.swing.JFrame {
             String carNo = model.getValueAt(selectedRow, 0).toString();
             String seater = model.getValueAt(selectedRow, 1).toString();
             String driverName = model.getValueAt(selectedRow, 2).toString();
-            String location = model.getValueAt(selectedRow, 3).toString();
-            String driverStatus = model.getValueAt(selectedRow, 4).toString();
-            String price = model.getValueAt(selectedRow, 5).toString();
+            String starting_location = model.getValueAt(selectedRow, 3).toString();
+            String destination = model.getValueAt(selectedRow, 4).toString();
+            String driverStatus = model.getValueAt(selectedRow, 5).toString();
+            String price = model.getValueAt(selectedRow, 6).toString();
 
             String url = "jdbc:mysql://localhost:3306/travel_agency";
             String user = "root";
@@ -249,7 +250,16 @@ public class CarPage extends javax.swing.JFrame {
                 pst = con.prepareStatement(updateQuery);
                 pst.setString(1, driverName);
                 pst.executeUpdate();
-
+                String insertQuery = "INSERT INTO CarBookings (car_no, seater, driver_name, starting_location, destination, driver_status, price) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                pst = con.prepareStatement(insertQuery);
+                pst.setString(1, carNo);
+                pst.setString(2, seater);
+                pst.setString(3, driverName);
+                pst.setString(4, starting_location);
+                pst.setString(5, destination);
+                pst.setString(6, "unavailable"); // Assuming the status immediately becomes unavailable
+                pst.setString(7, price);
+                pst.executeUpdate();
                 
 
                 
@@ -295,12 +305,15 @@ public class CarPage extends javax.swing.JFrame {
         String starting_location=jTextField4.getText();
         String destination=jTextField2.getText();
         String seater=jTextField3.getText();
-        String query="select * from car";
+        String query = "SELECT * FROM car WHERE starting_location = ? AND destination = ? AND seater = ? AND driver_status = 'available'";
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con=DriverManager.getConnection("jdbc:mysql://localhost/travel_agency", "root", "WARmachineROXXX");
-            Statement pst=con.createStatement();
-            ResultSet rs = pst.executeQuery(query);
+            PreparedStatement pst = con.prepareStatement(query);
+            pst.setString(1, starting_location);
+            pst.setString(2, destination);
+            pst.setString(3, seater);
+            ResultSet rs = pst.executeQuery();
 
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.setRowCount(0);
@@ -309,11 +322,11 @@ public class CarPage extends javax.swing.JFrame {
                 String carNo = rs.getString("car_no");
                 String carSeater = rs.getString("seater");
                 String driverName = rs.getString("driver_name");
-                String carstartinglocation = rs.getString("location");
-                
+                String carstartinglocation = rs.getString("starting_location");
+                String carDestination = rs.getString("destination");
                 String driverStatus = rs.getString("driver_status");
                 String price = rs.getString("price");
-                if(carstartinglocation.equals(starting_location) && carSeater.equals(seater) && driverStatus.equals("available")){
+                if(carstartinglocation.equals(starting_location) && carDestination.equals(destination) && carSeater.equals(seater) && driverStatus.equals("available")){
                     
                     model.addRow(new Object[]{carNo, carSeater, driverName, carstartinglocation,destination,  driverStatus, price});
               }

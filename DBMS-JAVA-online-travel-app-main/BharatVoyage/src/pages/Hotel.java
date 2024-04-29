@@ -309,10 +309,10 @@ public class Hotel extends javax.swing.JFrame {
         String user = "root";
         String password = "WARmachineROXXX";
 
-        try (Connection con = DriverManager.getConnection(url, user, password);
+        try (Connection con = DriverManager.getConnection(url, user, password)){
             
-            PreparedStatement updateStmt = con.prepareStatement("UPDATE Hotel SET num_rooms_available = num_rooms_available - ? WHERE Hotel_id = ?")) {
-
+            PreparedStatement updateStmt = con.prepareStatement("UPDATE Hotel SET num_rooms_available = num_rooms_available - ? WHERE Hotel_id = ?");
+            PreparedStatement insertStmt = con.prepareStatement("INSERT INTO HotelBookings (hotel_id, name, rating, amenities, location, price, num_of_rooms_boked, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)") ;
             
             // Add more parameters for check-in and check-out dates
             // insertStmt.setString(9, checkIn);
@@ -322,7 +322,15 @@ public class Hotel extends javax.swing.JFrame {
             updateStmt.setInt(1, numberOfRooms);
             updateStmt.setInt(2, hotelId);
             updateStmt.executeUpdate();
-
+            insertStmt.setInt(1, hotelId);
+            insertStmt.setString(2, name);
+            insertStmt.setDouble(3, rating);
+            insertStmt.setString(4, amenities);
+            insertStmt.setString(5, location);
+            insertStmt.setDouble(6, price);
+            insertStmt.setInt(7, numberOfRooms);
+            insertStmt.setString(8, type);
+            insertStmt.executeUpdate();
             model.removeRow(selectedRow);
 
             JOptionPane.showMessageDialog(this, "Booking successful!");
